@@ -120,8 +120,7 @@ defmodule BypassTest do
     ])
 
     capture_log(fn ->
-      assert {:error, _conn, %Mint.TransportError{reason: :timeout}, _responses} =
-               request(bypass.port)
+      assert {:ok, 500, ""} = request(bypass.port)
     end)
   end
 
@@ -145,7 +144,7 @@ defmodule BypassTest do
       end
     ])
 
-    assert {:error, _conn, %Mint.TransportError{reason: :closed}, _responses} =
+    assert {:error, _conn, %Mint.TransportError{reason: :timeout}, _responses} =
              request(bypass.port)
   end
 
@@ -231,7 +230,6 @@ defmodule BypassTest do
     end)
   end
 
-  @tag :wip
   test "Calling a bypass route without expecting a call fails the test" do
     bypass = Bypass.open()
 

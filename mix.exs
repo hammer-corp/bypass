@@ -29,13 +29,13 @@ defmodule Bypass.Mixfile do
 
   defp deps do
     [
-      {:plug_cowboy, "~> 2.0"},
-      {:plug, "~> 1.7"},
-      {:ranch, "~> 1.7"},
+      {:plug_cowboy, "~> 2.7.3"},
+      {:plug, "~> 1.17.0"},
+      {:ranch, "~> 2.1.0"},
       {:ex_doc, "> 0.0.0", only: :dev},
-      {:espec, "~> 1.6", only: [:dev, :test]},
+      {:espec, "~> 1.9.2", only: [:dev, :test]},
       {:mint, "~> 1.1", only: :test},
-      {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.4.5", only: [:dev], runtime: false}
     ]
   end
 
