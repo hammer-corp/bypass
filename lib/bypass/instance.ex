@@ -24,33 +24,22 @@ defmodule Bypass.Instance do
   # GenServer callbacks
 
   def init([opts]) do
-    # Get a free port from the OS
-    case :ranch_tcp.listen(%{
-           socket_opts: [ip: listen_ip(), port: Keyword.get(opts, :port, 0)]
-         }) do
-      {:ok, socket} ->
-        {:ok, port} = :inet.port(socket)
-        :ok = :ranch_tcp.close(socket)
+    ref = make_ref()
+    :ok = do_up(Keyword.get(opts, :port, 0), ref)
+    port = :ranch.get_port(ref)
 
-        ref = make_ref()
-        :ok = do_up(port, ref)
+    state = %{
+      expectations: %{},
+      port: port,
+      ref: ref,
+      callers_awaiting_down: [],
+      callers_awaiting_exit: [],
+      pass: false,
+      unknown_route_error: nil,
+      monitors: %{}
+    }
 
-        state = %{
-          expectations: %{},
-          port: port,
-          ref: ref,
-          callers_awaiting_down: [],
-          callers_awaiting_exit: [],
-          pass: false,
-          unknown_route_error: nil,
-          monitors: %{}
-        }
-
-        {:ok, state}
-
-      {:error, reason} ->
-        {:stop, reason}
-    end
+    {:ok, state}
   end
 
   def handle_info({:DOWN, ref, _, _, reason}, state) do
@@ -433,6 +422,7 @@ defmodule Bypass.Instance do
   defp cowboy_opts(port, ref) do
     [
       ref: ref,
+      ip: listen_ip(),
       port: port,
       reuseport: true,
       transport_options: [num_acceptors: 5]
